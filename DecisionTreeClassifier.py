@@ -10,7 +10,13 @@ from sklearn.model_selection import train_test_split
 from sklearn import tree
 from sklearn.metrics.classification import accuracy_score
 from sklearn.model_selection import KFold,StratifiedKFold
+from matplotlib._layoutbox import align
+import numpy as np
+from cProfile import label
 
+'''
+Applying decision tree on multi class dataset
+'''
 
 #Feature engineering
 
@@ -105,7 +111,7 @@ def predictStratifiedFoldCV(classifierBuildT,features,classLabel):
 dataFrame = pd.read_csv("C:/Masters/DKE/DataSetAssignment/car.csv")
 
 '''Check if ur dataset is balanced/imbalanced'''
-print(dataFrame)
+# print(dataFrame)
 targetVar_count = dataFrame.target.value_counts()
 # print(targetVar_count)
 print('Class label 1', targetVar_count[0])
@@ -124,7 +130,8 @@ classLabel = dataFrameCopy.values[:,6]
 '''Train-test split'''
 features_train, features_test, classLabel_train, classLabel_test = train_test_split( features, classLabel, test_size = 0.3, random_state = 100)
  
-classifierBuildT = tree.DecisionTreeClassifier()
+classifierBuildT = tree.DecisionTreeClassifier('entropy')
+
 accuracyOfSingleSplit = predictCLSingleTrainTest(classifierBuildT,features_train,classLabel_train,features_test,classLabel_test)
 print("Accuracy of single train-test split is! ", accuracyOfSingleSplit)
    
@@ -137,4 +144,36 @@ print("Accuracy of 10 fold CV is! ", accuracyOfKFoldCV)
  
 accuracyOfStratifiedFoldCV = predictStratifiedFoldCV(classifierBuildT,features,classLabel)
 print("Accuracy of stratified CV is! ", accuracyOfStratifiedFoldCV)
+
+'''Visualization of the accuracy w.r.t. evaluation method used when metric is GINI - 2D plot'''
+import matplotlib.pyplot as plt; plt.rcdefaults()
+ 
+x_axis_EvaluationMethodUsed = ('Single train-test split', 'k=10 fold CV', 'stratified k=10 fold CV')
+spacingInXandYAxis = np.arange(len(x_axis_EvaluationMethodUsed))
+y_axis_accuracyValues = [accuracyOfSingleSplit,accuracyOfKFoldCV,accuracyOfStratifiedFoldCV]
+z_axis_accuracyValues = [97.88053949903662, 91.86046511627907, 85.96491228070175]
+
+ 
+plt.bar(spacingInXandYAxis-0.2, y_axis_accuracyValues, width=0.2, color='b',align='center', alpha=1, label = 'Gini')
+plt.bar(spacingInXandYAxis, z_axis_accuracyValues, width=0.2, color='g', align='center', alpha=1, label = 'Entropy')
+plt.xticks(spacingInXandYAxis, x_axis_EvaluationMethodUsed)
+plt.ylabel('Accuracy')
+plt.title('Evaluation method accuracy comparison')
+
+plt.legend(('Gini','Entropy'))
+ 
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
   
